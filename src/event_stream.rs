@@ -68,15 +68,15 @@ impl EventStream {
         let thread_writer = writer.clone();
         let thread_handlers = handlers.clone();
         let join_handle = thread::spawn(move || {
-            match event_loop(reader, thread_writer, thread_handlers) {
-                Err(channels::ChanError::RecvError(_)) => {
-                    error!("Receive on channel failed, channel is disconnected.");
-                },
-                Err(channels::ChanError::SendError(mpsc::SendError(l))) => {
-                    error!("Send of \"{}\" failed, channel is disconnected.", l);
-                },
-                Ok(_) => (),
-            }
+            event_loop(reader, thread_writer, thread_handlers)
+                .err().and_then(|e| -> Option<()> {
+                    if let channels::ChanError::SendError(mpsc::SendError(l)) = e {
+                        error!("Send of \"{}\" failed, channel is disconnected.", l);
+                    } else {
+                        error!("Receive on channel failed, channel is disconnected.");
+                    }
+                    None
+                });
         });
         let stream = EventStream{
             writer: writer,
@@ -130,12 +130,9 @@ fn process_one_event(line: &str, writer: &Sender<String>, handlers: &mut Vec<Han
             h(line)
         };
         // Send a message, if any.
-        match msg {
-            Some(m) => {
-                try!(writer.send(m));
-            },
-            None => (),
-        };
+        if let Some(m) = msg {
+            try!(writer.send(m));
+        }
         // Increment i if we didn't remove the handler here.
         match handler_action {
             HandlerAction::Remove => (),

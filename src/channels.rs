@@ -24,13 +24,10 @@ fn reader_loop<R: Read>(r: R, tx: Sender<String>) -> io::Result<()> {
         try!(reader.read_line(&mut line));
         line = line.trim().to_string();
         debug!("Read \"{}\".", line);
-        match tx.send(line) {
-            Ok(_) => (),
-            Err(mpsc::SendError(l)) => {
-                debug!("Send of \"{}\" failed, channel is disconnected.", l);
-                return Ok(());
-            },
-        };
+        if let Some(mpsc::SendError(l)) = tx.send(line).err() {
+            debug!("Send of \"{}\" failed, channel is disconnected.", l);
+            return Ok(());
+        }
     }
 }
 
@@ -39,12 +36,10 @@ fn reader_loop<R: Read>(r: R, tx: Sender<String>) -> io::Result<()> {
 pub fn reader<R: Read + Send + 'static>(r: R) -> Receiver<String> {
     let (tx, rx) = channel();
     thread::spawn(move || {
-        match reader_loop(r, tx) {
-            Err(e) => {
-                error!("Fatal I/O error \"{:?}\".", e);
-            },
-            Ok(_) => (),
-        }
+        reader_loop(r, tx).err().and_then(|e| -> Option<()> {
+            error!("Fatal I/O error \"{:?}\".", e);
+            None
+        });
     });
     rx
 }
@@ -68,12 +63,10 @@ fn writer_loop<W: Write>(w: W, rx: Receiver<String>) -> io::Result<()> {
 pub fn writer<W: Write + Send + 'static>(w: W) -> Sender<String> {
     let (tx, rx) = channel();
     thread::spawn(move || {
-        match writer_loop(w, rx) {
-            Err(e) => {
-                error!("Fatal I/O error \"{:?}\".", e);
-            },
-            Ok(_) => (),
-        }
+        writer_loop(w, rx).err().and_then(|e| -> Option<()> {
+            error!("Fatal I/O error \"{:?}\".", e);
+            None
+        });
     });
     tx
 }

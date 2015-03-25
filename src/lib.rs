@@ -123,9 +123,10 @@ impl Client {
         let mut handler_mut = handler;
         self.stream.add_handler(box move |line| {
             let Response(msg, ha, a) = handler_mut(line);
-            match msg {
-                Some(s) => Response(Some(format!("{} {}\r\n", server.as_slice(), s)), ha, a),
-                None => Response(msg, ha, a),
+            if let Some(s) = msg {
+                Response(Some(format!("{} {}\r\n", server.as_slice(), s)), ha, a)
+            } else {
+                Response(msg, ha, a)
             }
         });
     }
@@ -139,9 +140,11 @@ impl Drop for Client {
         use std::io::Write;
 
         info!("Quitting from server...");
-        if let Err(e) = write!(&mut self.stream, "{} QUIT: adios\r\n", self.server.as_slice()) {
-            error!("Error quitting: {:?}", e);
-        }
+        write!(&mut self.stream, "{} QUIT: adios\r\n", self.server.as_slice())
+            .err().and_then(|e| -> Option<()> {
+                error!("Error quitting: {:?}", e);
+                None
+            });
     }
 
 }
