@@ -187,6 +187,9 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>feature</span>(<span class='ident'>box_syntax</span>,<span class='ident'>core</span>,<span class='ident'>io</span>,<span class='ident'>std_misc</span>,<span class='ident'>unboxed_closures</span>)]</span>
 
@@ -313,9 +316,10 @@
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>handler_mut</span> <span class='op'>=</span> <span class='ident'>handler</span>;
         <span class='self'>self</span>.<span class='ident'>stream</span>.<span class='ident'>add_handler</span>(<span class='kw'>box</span> <span class='kw'>move</span> <span class='op'>|</span><span class='ident'>line</span><span class='op'>|</span> {
             <span class='kw'>let</span> <span class='ident'>Response</span>(<span class='ident'>msg</span>, <span class='ident'>ha</span>, <span class='ident'>a</span>) <span class='op'>=</span> <span class='ident'>handler_mut</span>(<span class='ident'>line</span>);
-            <span class='kw'>match</span> <span class='ident'>msg</span> {
-                <span class='prelude-val'>Some</span>(<span class='ident'>s</span>) <span class='op'>=&gt;</span> <span class='ident'>Response</span>(<span class='prelude-val'>Some</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{} {}\r\n&quot;</span>, <span class='ident'>server</span>.<span class='ident'>as_slice</span>(), <span class='ident'>s</span>)), <span class='ident'>ha</span>, <span class='ident'>a</span>),
-                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='ident'>Response</span>(<span class='ident'>msg</span>, <span class='ident'>ha</span>, <span class='ident'>a</span>),
+            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>s</span>) <span class='op'>=</span> <span class='ident'>msg</span> {
+                <span class='ident'>Response</span>(<span class='prelude-val'>Some</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{} {}\r\n&quot;</span>, <span class='ident'>server</span>.<span class='ident'>as_slice</span>(), <span class='ident'>s</span>)), <span class='ident'>ha</span>, <span class='ident'>a</span>)
+            } <span class='kw'>else</span> {
+                <span class='ident'>Response</span>(<span class='ident'>msg</span>, <span class='ident'>ha</span>, <span class='ident'>a</span>)
             }
         });
     }
@@ -329,9 +333,11 @@
         <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Write</span>;
 
         <span class='macro'>info</span><span class='macro'>!</span>(<span class='string'>&quot;Quitting from server...&quot;</span>);
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Err</span>(<span class='ident'>e</span>) <span class='op'>=</span> <span class='macro'>write</span><span class='macro'>!</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>stream</span>, <span class='string'>&quot;{} QUIT: adios\r\n&quot;</span>, <span class='self'>self</span>.<span class='ident'>server</span>.<span class='ident'>as_slice</span>()) {
-            <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;Error quitting: {:?}&quot;</span>, <span class='ident'>e</span>);
-        }
+        <span class='macro'>write</span><span class='macro'>!</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>stream</span>, <span class='string'>&quot;{} QUIT: adios\r\n&quot;</span>, <span class='self'>self</span>.<span class='ident'>server</span>.<span class='ident'>as_slice</span>())
+            .<span class='ident'>err</span>().<span class='ident'>and_then</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
+                <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;Error quitting: {:?}&quot;</span>, <span class='ident'>e</span>);
+                <span class='prelude-val'>None</span>
+            });
     }
 
 }

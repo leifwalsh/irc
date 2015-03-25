@@ -43,7 +43,7 @@
     <section id='main' class="content type">
 <h1 class='fqn'><span class='in-band'><a href='../index.html'>irc</a>::<wbr><a href='index.html'>event_stream</a>::<wbr><a class='type' href=''>Handler</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-813' href='../../src/irc/event_stream.rs.html#46'>[src]</a></span></h1>
+        </span><a id='src-818' href='../../src/irc/event_stream.rs.html#46'>[src]</a></span></h1>
 <pre class='rust typedef'>type Handler = <a class='struct' href='http://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='../../irc/event_stream/struct.Response.html' title='irc::event_stream::Response'>Response</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>&gt;;</pre><div class='docblock'><p>A <code>Handler</code> examines a line of input read from a stream, and
 produces an optional <code>Response</code> to send, an additional <code>Handler</code>
 to install (perhaps to wait for a response), and a next <code>Action</code>
