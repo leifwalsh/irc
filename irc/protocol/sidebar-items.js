@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Dest",""],["Source",""]],"fn":[["join",""],["login",""],["pong_handler",""],["timeout_handler",""]],"struct":[["Privmsg",""],["UserInfo",""]]});
+initSidebarItems({"enum":[["Dest",""],["Source",""]],"struct":[["Privmsg",""],["UserInfo",""]],"fn":[["join",""],["login",""],["pong_handler",""],["timeout_handler",""]]});
