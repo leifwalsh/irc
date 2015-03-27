@@ -18,10 +18,6 @@ fn main() {
     let nick = "rustbot_test";
     let channels = ["#rustbot_test"];
 
-    // let addr = ("irc.freenode.net", 6667);
-    // let nick = "hiphopabotamus";
-    // let channels = ["#raptracks"];
-
     let echo_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(nick)) {
             if Regex::new(r"^[Hh]i$").ok().expect("bad regex").is_match(pm.msg) {
