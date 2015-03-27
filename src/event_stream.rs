@@ -165,7 +165,7 @@ fn process_one_event(line: &str, writer: &Sender<String>, handlers: &mut Vec<Han
 fn event_loop(reader: Receiver<String>, writer: Sender<String>, handlers: Arc<Mutex<Vec<Handler>>>) -> Result<(), channels::ChanError<String>> {
     loop {
         let line = try!(reader.recv().map_err(channels::recv_to_chan_error));
-        match try!(process_one_event(line.as_slice(), &writer, &mut *handlers.lock().unwrap()).map_err(channels::send_to_chan_error)) {
+        match try!(process_one_event(&line, &writer, &mut *handlers.lock().unwrap()).map_err(channels::send_to_chan_error)) {
             Action::Stop => {
                 info!("Exiting event loop...");
                 break;

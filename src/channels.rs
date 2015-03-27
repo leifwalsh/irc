@@ -48,7 +48,7 @@ fn writer_loop<W: Write>(w: W, rx: Receiver<String>) -> io::Result<()> {
     let mut writer = io::LineWriter::new(w);
     let mut buf = String::new();
     for line in rx.iter() {
-        buf.push_str(line.as_slice());
+        buf.push_str(&line);
         if buf.ends_with('\n') {
             debug!("Sending \"{}\"...", buf.trim());
             buf = String::new();

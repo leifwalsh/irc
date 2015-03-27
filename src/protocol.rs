@@ -44,7 +44,7 @@ pub fn login(stream: &mut EventStream, nick: &str,
     login_responses.into_iter().map(|mut f| f.get()).next().expect("Didn't get login response.");
 
     Ok(server_responses.into_iter().map(|mut f| {
-        re.captures(f.get().as_slice())
+        re.captures(&f.get())
             .expect("Regex match was bad")
             .at(1).expect("Regex didn't capture").to_string()
     }).next().expect("Didn't get server response"))
@@ -60,7 +60,7 @@ pub fn join(stream: &mut EventStream, server: &str, channels: &[&str]) -> io::Re
     }
     let re = Regex::new(r"JOIN\s+:?([^\s]+)").unwrap();
     responses.into_iter().map(|f| {
-        info!("Joined channel {}!", re.captures(f.into_inner().as_slice()).unwrap().at(1).unwrap());
+        info!("Joined channel {}!", re.captures(&f.into_inner()).unwrap().at(1).unwrap());
     }).count();
     Ok(())
 }

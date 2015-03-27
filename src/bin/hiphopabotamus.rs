@@ -1,4 +1,4 @@
-#![feature(box_syntax,std_misc)]
+#![feature(box_syntax)]
 
 use irc::event_stream::{Action, HandlerAction, Response};
 use irc::protocol;

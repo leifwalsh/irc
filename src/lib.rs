@@ -1,4 +1,4 @@
-#![feature(box_syntax,core,io,std_misc,unboxed_closures)]
+#![feature(box_syntax,io,std_misc,unboxed_closures)]
 
 //! Provides some basic functionality for connecting to IRC servers
 //! and performing robotic tasks.
@@ -96,7 +96,7 @@ impl Client {
         let server = try!(protocol::login(&mut stream, nick, user, realname, invisible, wallops));
         info!("Logged in at \"{}\"!", server);
 
-        try!(protocol::join(&mut stream, server.as_slice(), channels));
+        try!(protocol::join(&mut stream, &server, channels));
 
         let client = Client{
             stream: stream,
@@ -124,7 +124,7 @@ impl Client {
         self.stream.add_handler(box move |line| {
             let Response(msg, ha, a) = handler_mut(line);
             if let Some(s) = msg {
-                Response(Some(format!("{} {}\r\n", server.as_slice(), s)), ha, a)
+                Response(Some(format!("{} {}\r\n", &server, s)), ha, a)
             } else {
                 Response(msg, ha, a)
             }
@@ -140,7 +140,7 @@ impl Drop for Client {
         use std::io::Write;
 
         info!("Quitting from server...");
-        write!(&mut self.stream, "{} QUIT: adios\r\n", self.server.as_slice())
+        write!(&mut self.stream, "{} QUIT: adios\r\n", &self.server)
             .err().and_then(|e| -> Option<()> {
                 error!("Error quitting: {:?}", e);
                 None
