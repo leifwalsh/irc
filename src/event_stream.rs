@@ -113,7 +113,7 @@ impl Write for EventStream {
         let line = from_utf8(buf).unwrap().to_string();
         self.writer.send(line)
             .and(Ok(buf.len()))
-            .or(Err(io::Error::new(io::ErrorKind::NotConnected, "Send failed, channel is disconnected.", None)))
+            .or(Err(io::Error::new(io::ErrorKind::NotConnected, "Send failed, channel is disconnected.")))
     }
 
     fn flush(&mut self) -> io::Result<()> {
