@@ -178,7 +178,9 @@ impl<'a> Privmsg<'a> {
     }
 
     pub fn targeted_msg(self, nick: &str) -> Option<Privmsg<'a>> {
-        if let Some(c) = Regex::new(&format!(r"^{}[:,]?\s+(.*)\s*$", nick)).ok().expect("bad regex").captures(self.msg) {
+        if let Some(Source::User(_)) = self.src {
+            Some(self)
+        } else if let Some(c) = Regex::new(&format!(r"^{}[:,]?\s+(.*)\s*$", nick)).ok().expect("bad regex").captures(self.msg) {
             Some(Privmsg{
                 src: self.src,
                 dst: self.dst,
