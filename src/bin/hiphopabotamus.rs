@@ -87,6 +87,13 @@ fn main() {
         Response::nothing()
     };
 
+    {
+        // Seed our knowledge
+        let mut knowledge = knowledge_mutex.lock().unwrap();
+        knowledge.insert(format!("{}: info", nick), vec!["I'm a robot running https://github.com/leifwalsh/irc, feel free to contribute!".to_string()]);
+        knowledge.insert(format!("{}, info", nick), vec!["I'm a robot running https://github.com/leifwalsh/irc, feel free to contribute!".to_string()]);
+    }
+
     let knowledge_mutex_2 = knowledge_mutex.clone();
     let info_nick = nick.clone();
     let info_handler = box move |line: &str| {
