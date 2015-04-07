@@ -100,6 +100,29 @@ fn main() {
         Response::nothing()
     };
 
+    let join_nick = nick.clone();
+    let join_handler = box move |line: &str| {
+        if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(&join_nick)) {
+            if let Some(c) = Regex::new(r"^(join|part) (#[^\s]+)").unwrap().captures(pm.msg) {
+                let action = c.at(1).expect("Bad match group");
+                let chan = c.at(2).expect("Bad match group");
+                let success_msg = format!("{} channel {}!", if action == "join" { "Joined" } else { "Left" }, chan);
+                if let Ok(joined_regex) = Regex::new(&format!(r"{}\s+:?{}", action.to_ascii_uppercase(), chan)) {
+                    let joined_handler = box move |joined_line: &str| {
+                        if joined_regex.is_match(joined_line) {
+                            info!("{}", success_msg);
+                            return Response(None, HandlerAction::Remove, Action::Skip);
+                        }
+                        Response::nothing()
+                    };
+                    info!("{} channel {}...", if action == "join" { "Joining" } else { "Leaving" }, chan);
+                    return Response(Some(format!("{} {}", action.to_ascii_uppercase(), chan)), HandlerAction::Add(joined_handler), Action::Skip);
+                }
+            }
+        }
+        Response::nothing()
+    };
+
     let echo_nick = nick.clone();
     let echo_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(&echo_nick)) {
@@ -123,6 +146,7 @@ fn main() {
     client.add_handler(choice_handler);
     client.add_handler(learning_handler);
     client.add_handler(info_handler);
+    client.add_handler(join_handler);
     client.add_handler(echo_handler);
     join_handle.join().unwrap_or_else(|_| { error!("Unknown error!"); });
 }
