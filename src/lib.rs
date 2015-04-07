@@ -1,4 +1,5 @@
-#![feature(box_syntax,std_misc,unboxed_closures)]
+#![feature(box_syntax,plugin,std_misc,unboxed_closures)]
+#![plugin(regex_macros)]
 
 //! Provides some basic functionality for connecting to IRC servers
 //! and performing robotic tasks.

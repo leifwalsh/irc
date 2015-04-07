@@ -1,8 +1,8 @@
-#![feature(box_syntax)]
+#![feature(box_syntax,plugin)]
+#![plugin(regex_macros)]
 
 use irc::event_stream::{Action, HandlerAction, Response};
 use irc::protocol;
-use regex::Regex;
 
 extern crate env_logger;
 extern crate irc;
@@ -20,13 +20,13 @@ fn main() {
 
     let echo_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(nick)) {
-            if Regex::new(r"^[Hh]i$").ok().expect("bad regex").is_match(pm.msg) {
+            if regex!(r"^[Hh]i$").is_match(pm.msg) {
                 if let Some(reply_to) = pm.reply_target(nick) {
                     if let Some(protocol::Source::User(ref user_info)) = pm.src {
                         return Response::respond(protocol::Privmsg::new(reply_to, &format!("Hi, {}!", user_info.nick)).format());
                     }
                 }
-            } else if Regex::new(r"^go away$").unwrap().is_match(pm.msg) {
+            } else if regex!(r"^go away$").is_match(pm.msg) {
                 return Response(None, HandlerAction::Keep, Action::Stop);
             }
         }

@@ -33,7 +33,7 @@ pub fn timeout_handler(line: &str) -> Response {
 pub fn login(stream: &mut EventStream, nick: &str,
              user: &str, realname: &str,
              invisible: bool, wallops: bool) -> io::Result<String> {
-    let re = Regex::new(r"^([^\s]+)\s+001").unwrap();
+    let re = regex!(r"^([^\s]+)\s+001");
     let server_responses = stream.await_lines(vec![re.clone()]);
     let login_responses = stream.await_lines(vec![Regex::new(&format!(r"MODE {} :\+[iswx]+$", nick))
                                                   .ok().expect("Regex compilation failure: bad username?")]);
@@ -58,9 +58,8 @@ pub fn join(stream: &mut EventStream, server: &str, channels: &[&str]) -> io::Re
         info!("Joining channel {}...", chan);
         try!(write!(stream, "{} JOIN {}\r\n", server, chan));
     }
-    let re = Regex::new(r"JOIN\s+:?([^\s]+)").unwrap();
     responses.into_iter().map(|f| {
-        info!("Joined channel {}!", re.captures(&f.into_inner()).unwrap().at(1).unwrap());
+        info!("Joined channel {}!", regex!(r"JOIN\s+:?([^\s]+)").captures(&f.into_inner()).unwrap().at(1).unwrap());
     }).count();
     Ok(())
 }
@@ -74,7 +73,7 @@ pub struct UserInfo<'a> {
 impl<'a> UserInfo<'a> {
 
     pub fn parse(s: &'a str) -> Option<UserInfo<'a>> {
-        Regex::new(r"^([][\\`_^{|}a-zA-Z][][\\`_^{|}a-zA-Z0-9-]*)((!([^ @]+))?@(.*))?$").unwrap()
+        regex!(r"^([][\\`_^{|}a-zA-Z][][\\`_^{|}a-zA-Z0-9-]*)((!([^ @]+))?@(.*))?$")
             .captures(s).map(|c| {
                 UserInfo{
                     nick: c.at(1).expect("Bad match group"),
@@ -108,8 +107,7 @@ pub enum Dest<'a> {
 impl<'a> Dest<'a> {
 
     pub fn parse(s: &'a str) -> Option<Dest<'a>> {
-        let chan_re = Regex::new(r"^[#+&!][^,:]+$").unwrap();
-        if chan_re.is_match(s) {
+        if regex!(r"^[#+&!][^,:]+$").is_match(s) {
             Some(Dest::Chan(s))
         } else {
             Some(Dest::Nick(s))
@@ -134,7 +132,7 @@ pub struct Privmsg<'a> {
 impl<'a> Privmsg<'a> {
 
     pub fn parse(line: &'a str) -> Option<Privmsg<'a>> {
-        Regex::new(r"^:([^\s]+)\s+PRIVMSG\s+([^\s]+)\s+:?(.*)$").unwrap()
+        regex!(r"^:([^\s]+)\s+PRIVMSG\s+([^\s]+)\s+:?(.*)$")
             .captures(line).map(
                 |c| Source::parse(c.at(1).expect("Bad match group")).map(
                     |src| Dest::parse(c.at(2).expect("Bad match group")).map(

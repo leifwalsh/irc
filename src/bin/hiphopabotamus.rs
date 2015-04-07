@@ -1,4 +1,6 @@
 #![feature(box_syntax)]
+#![feature(plugin)]
+#![plugin(regex_macros)]
 
 use irc::event_stream::{Action, HandlerAction, Response};
 use irc::protocol;
@@ -46,7 +48,7 @@ fn main() {
     let choice_nick = nick.clone();
     let choice_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(&choice_nick)) {
-            let choices: Vec<_> = Regex::new(r"\s+or\s+").unwrap()
+            let choices: Vec<_> = regex!(r"\s+or\s+")
                 .split(pm.msg)
                 .map(|s| s.trim())
                 .filter(|s| !s.is_empty())
@@ -65,7 +67,7 @@ fn main() {
     let learning_nick = nick.clone();
     let learning_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(&learning_nick)) {
-            let assignment: Vec<_> = Regex::new(r"\s+is\s+").unwrap()
+            let assignment: Vec<_> = regex!(r"\s+is\s+")
                 .splitn(pm.msg, 2)
                 .map(|s| s.trim())
                 .filter(|s| !s.is_empty())
@@ -103,7 +105,7 @@ fn main() {
     let join_nick = nick.clone();
     let join_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(&join_nick)) {
-            if let Some(c) = Regex::new(r"^(join|part) (#[^\s]+)").unwrap().captures(pm.msg) {
+            if let Some(c) = regex!(r"^(join|part) (#[^\s]+)").captures(pm.msg) {
                 let action = c.at(1).expect("Bad match group");
                 let chan = c.at(2).expect("Bad match group");
                 let success_msg = format!("{} channel {}!", if action == "join" { "Joined" } else { "Left" }, chan);
@@ -126,13 +128,13 @@ fn main() {
     let echo_nick = nick.clone();
     let echo_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(&echo_nick)) {
-            if Regex::new(r"^[Hh]i$").ok().expect("bad regex").is_match(pm.msg) {
+            if regex!(r"^[Hh]i$").is_match(pm.msg) {
                 if let Some(reply_to) = pm.reply_target(&echo_nick) {
                     if let Some(protocol::Source::User(ref user_info)) = pm.src {
                         return Response::respond(protocol::Privmsg::new(reply_to, &format!("Hi, {}!", user_info.nick)).format());
                     }
                 }
-            } else if Regex::new(r"^go away$").unwrap().is_match(pm.msg) {
+            } else if regex!(r"^go away$").is_match(pm.msg) {
                 return Response(None, HandlerAction::Keep, Action::Stop);
             }
         }

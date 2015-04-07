@@ -10,6 +10,7 @@ getopts = "0.2"
 log = "0.3"
 rand = "0.3"
 regex = "0.1"
+regex_macros = "0.1"
 
 [[bin]]
 name = "hiphopabotamus"
