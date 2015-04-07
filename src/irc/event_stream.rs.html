@@ -318,7 +318,7 @@
                         .<span class='ident'>ok</span>().<span class='ident'>expect</span>(<span class='string'>&quot;Couldn&#39;t send awaited line.&quot;</span>);;
                     <span class='ident'>Response</span>(<span class='prelude-val'>None</span>, <span class='ident'>HandlerAction</span>::<span class='ident'>Remove</span>, <span class='ident'>Action</span>::<span class='ident'>Skip</span>)
                 } <span class='kw'>else</span> {
-                    <span class='ident'>Response</span>(<span class='prelude-val'>None</span>, <span class='ident'>HandlerAction</span>::<span class='ident'>Keep</span>, <span class='ident'>Action</span>::<span class='ident'>Continue</span>)
+                    <span class='ident'>Response</span>::<span class='ident'>nothing</span>()
                 }
             });
             <span class='ident'>Future</span>::<span class='ident'>from_receiver</span>(<span class='ident'>rx</span>)
