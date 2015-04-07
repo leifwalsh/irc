@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `Dest` enum in crate `irc`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, Dest">
+    <meta name="description" content="API documentation for the Rust `ctcp_action` fn in crate `irc`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ctcp_action">
 
-    <title>irc::protocol::Dest - Rust</title>
+    <title>irc::protocol::ctcp_action - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>irc</a>::<wbr><a href='index.html'>protocol</a></p><script>window.sidebarCurrent = {name: 'Dest', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='../index.html'>irc</a>::<wbr><a href='index.html'>protocol</a></p><script>window.sidebarCurrent = {name: 'ctcp_action', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </section>
 
     <nav class="sub">
@@ -40,17 +40,11 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>irc</a>::<wbr><a href='index.html'>protocol</a>::<wbr><a class='enum' href=''>Dest</a><wbr></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content fn">
+<h1 class='fqn'><span class='in-band'>Function <a href='../index.html'>irc</a>::<wbr><a href='index.html'>protocol</a>::<wbr><a class='fn' href=''>ctcp_action</a><wbr></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-7113' href='../../src/irc/protocol.rs.html#108-111'>[src]</a></span></h1>
-<pre class='rust enum'>pub enum Dest&lt;'a&gt; {
-    Nick(&amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>),
-    Chan(&amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>),
-}</pre><h2 class='variants'>Variants</h2>
-<table><tr><td id='variant.Nick'><a class='stability Unmarked' title='No stability level'></a><code>Nick</code></td><td></td></tr><tr><td id='variant.Chan'><a class='stability Unmarked' title='No stability level'></a><code>Chan</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;'a&gt; <a class='enum' href='../../irc/protocol/enum.Dest.html' title='irc::protocol::Dest'>Dest</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.parse' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.parse' class='fnname'>parse</a>(s: &amp;'a <a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../irc/protocol/enum.Dest.html' title='irc::protocol::Dest'>Dest</a>&lt;'a&gt;&gt;</code></h4>
-<h4 id='method.format' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#method.format' class='fnname'>format</a>(&amp;self) -&gt; <a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a></code></h4>
-</div></section>
+        </span><a id='src-5019' href='../../src/irc/protocol.rs.html#68-71'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn ctcp_action(msg: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a></pre></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
