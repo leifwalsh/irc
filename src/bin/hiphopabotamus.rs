@@ -105,7 +105,5 @@ fn main() {
     client.add_handler(learning_handler);
     client.add_handler(info_handler);
     client.add_handler(echo_handler);
-    join_handle.join().unwrap_or_else(|_| {
-        error!("Unknown error!");
-    });
+    join_handle.join().unwrap_or_else(|_| { error!("Unknown error!"); });
 }

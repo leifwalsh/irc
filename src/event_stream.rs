@@ -98,7 +98,7 @@ impl EventStream {
                         .ok().expect("Couldn't send awaited line.");;
                     Response(None, HandlerAction::Remove, Action::Skip)
                 } else {
-                    Response(None, HandlerAction::Keep, Action::Continue)
+                    Response::nothing()
                 }
             });
             Future::from_receiver(rx)
