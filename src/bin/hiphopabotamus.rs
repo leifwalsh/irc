@@ -95,7 +95,12 @@ fn main() {
                 let knowledge = knowledge_mutex_2.lock().unwrap();
                 if let Some(choices) = knowledge.get(pm.msg) {
                     let mut rng = thread_rng();
-                    return Response::respond(protocol::Privmsg::new(reply_to, rng.choose(choices).unwrap()).format());
+                    let choice = rng.choose(choices).unwrap();
+                    if let Some(c) = regex!(r"^<action>\s+(.*)$").captures(choice) {
+                        return Response::respond(protocol::Privmsg::new(reply_to, &protocol::ctcp_action(c.at(1).expect("Bad regex match"))).format());
+                    } else {
+                        return Response::respond(protocol::Privmsg::new(reply_to, choice).format());
+                    }
                 }
             }
         }

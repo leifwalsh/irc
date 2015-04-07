@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::char;
 use std::io;
 use std::io::prelude::*;
 use super::event_stream::{Action, HandlerAction, Response, EventStream};
@@ -62,6 +63,11 @@ pub fn join(stream: &mut EventStream, server: &str, channels: &[&str]) -> io::Re
         info!("Joined channel {}!", regex!(r"JOIN\s+:?([^\s]+)").captures(&f.into_inner()).unwrap().at(1).unwrap());
     }).count();
     Ok(())
+}
+
+pub fn ctcp_action(msg: &str) -> String {
+    let one_byte = char::from_u32(1).unwrap();
+    return format!("{}ACTION {}{}", one_byte, msg, one_byte);
 }
 
 pub struct UserInfo<'a> {
