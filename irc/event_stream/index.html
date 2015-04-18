@@ -41,50 +41,60 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>irc</a>::<wbr><a class='mod' href=''>event_stream</a><wbr></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>irc</a>::<wbr><a class='mod' href=''>event_stream</a></span><span class='out-of-band'><span id='render-detail'>
             <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-750' href='../../src/irc/event_stream.rs.html#1-177'>[src]</a></span></h1>
+        </span><a id='src-750' class='srclink' href='../../src/irc/event_stream.rs.html#1-177'>[src]</a></span></h1>
 <h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.EventStream.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.EventStream.html'
                                title='irc::event_stream::EventStream'>EventStream</a></td>
-                        <td class='docblock short'><p><code>EventStream</code> wraps a stream and will loop, reading lines and
+                        <td class='docblock short'>
+                             <p><code>EventStream</code> wraps a stream and will loop, reading lines and
 processing them with <code>Handler</code>s, which are allowed to write back
 to the stream and install additional <code>Handler</code>s.</p>
-</td>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Response.html'
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Response.html'
                                title='irc::event_stream::Response'>Response</a></td>
-                        <td class='docblock short'><p>Optionally respond with a message, then take the given next <code>Action</code>.</p>
-</td>
+                        <td class='docblock short'>
+                             <p>Optionally respond with a message, then take the given next <code>Action</code>.</p>
+
+                        </td>
                     </tr>
                 </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='enum' href='enum.Action.html'
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Action.html'
                                title='irc::event_stream::Action'>Action</a></td>
-                        <td class='docblock short'><p>What should we do next?</p>
-</td>
+                        <td class='docblock short'>
+                             <p>What should we do next?</p>
+
+                        </td>
                     </tr>
                 
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='enum' href='enum.HandlerAction.html'
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.HandlerAction.html'
                                title='irc::event_stream::HandlerAction'>HandlerAction</a></td>
-                        <td class='docblock short'></td>
+                        <td class='docblock short'>
+                             
+                        </td>
                     </tr>
                 </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='type' href='type.Handler.html'
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.Handler.html'
                                title='irc::event_stream::Handler'>Handler</a></td>
-                        <td class='docblock short'><p>A <code>Handler</code> examines a line of input read from a stream, and
+                        <td class='docblock short'>
+                             <p>A <code>Handler</code> examines a line of input read from a stream, and
 produces an optional <code>Response</code> to send, an additional <code>Handler</code>
 to install (perhaps to wait for a response), and a next <code>Action</code>
 to take after processing the line.</p>
-</td>
+
+                        </td>
                     </tr>
                 </table></section>
     <section id='search' class="content hidden"></section>
