@@ -29,6 +29,10 @@ fn init_pg_tables() -> Connection {
                   val VARCHAR,
                   PRIMARY KEY(key, val)
                 )", &[]).unwrap();
+    pg.execute("CREATE TABLE IF NOT EXISTS karma (
+                  nick VARCHAR PRIMARY KEY,
+                  karma INTEGER NOT NULL DEFAULT 0
+                )", &[]).unwrap();
     pg
 }
 
@@ -119,6 +123,36 @@ fn main() {
         Response::nothing()
     };
 
+    let karma_pg = pg.clone();
+    let karma_nick = nick.clone();
+    let karma_handler = box move |line: &str| {
+        if let Some(pm) = protocol::Privmsg::parse(line) {
+            if let Some(c) = regex!(r"^([^-+\s]+)(\+\+|--)$").captures(pm.msg) {
+                let n = c.at(1).expect("Bad match group");
+                let inc = c.at(2).expect("Bad match group") == "++";
+                let conn = karma_pg.lock().unwrap();
+                let stmt = conn.prepare(sql!("SELECT count(nick) FROM karma WHERE nick = $1")).unwrap();
+                let count: i64 = stmt.query(&[&n]).unwrap().into_iter().next().unwrap().get(0);
+                let change = if inc { 1 } else { -1 };
+                if count == 0 {
+                    conn.execute(sql!("INSERT INTO karma (nick, karma) VALUES ($1, $2)"), &[&n, &change]).unwrap();
+                } else {
+                    conn.execute(sql!("UPDATE karma SET karma = karma + $2 WHERE nick = $1"), &[&n, &change]).unwrap();
+                }
+            } else if let Some(c) = regex!(r"^karma\s+([^\s]+)$").captures(pm.msg) {
+                if let Some(reply_to) = pm.reply_target(&karma_nick) {
+                    let n = c.at(1).expect("Bad match group");
+                    let conn = karma_pg.lock().unwrap();
+                    let stmt = conn.prepare(sql!("SELECT karma FROM karma WHERE nick = $1")).unwrap();
+                    let k: i32 = stmt.query(&[&n]).unwrap()
+                        .into_iter().next().and_then(|r| r.get(0)).or(Some(0)).unwrap();
+                    return Response::respond(protocol::Privmsg::new(reply_to, &format!("{}: {}", n, k)).format())
+                }
+            }
+        }
+        Response::nothing()
+    };
+
     let join_nick = nick.clone();
     let join_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(&join_nick)) {
@@ -164,6 +198,7 @@ fn main() {
 
     client.add_handler(choice_handler);
     client.add_handler(learning_handler);
+    client.add_handler(karma_handler);
     client.add_handler(info_handler);
     client.add_handler(join_handler);
     client.add_handler(echo_handler);
