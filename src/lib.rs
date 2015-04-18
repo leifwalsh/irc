@@ -71,7 +71,7 @@ impl Client {
     /// ```
     pub fn connect<A: net::ToSocketAddrs + fmt::Debug>(addr: &A,
                                                        nick: &str, channels: &[&str],
-                                                       user: &str, realname: &str) -> io::Result<(Client, thread::JoinHandle)> {
+                                                       user: &str, realname: &str) -> io::Result<(Client, thread::JoinHandle<()>)> {
         Client::connect_mode(addr, nick, channels, user, realname, false, true)
     }
 
@@ -81,7 +81,7 @@ impl Client {
     pub fn connect_mode<A: net::ToSocketAddrs + fmt::Debug>(addr: &A,
                                                             nick: &str, channels: &[&str],
                                                             user: &str, realname: &str,
-                                                            invisible: bool, wallops: bool) -> io::Result<(Client, thread::JoinHandle)> {
+                                                            invisible: bool, wallops: bool) -> io::Result<(Client, thread::JoinHandle<()>)> {
         let default_handlers: Vec<Handler> = vec![
             box protocol::pong_handler,
             box protocol::timeout_handler,

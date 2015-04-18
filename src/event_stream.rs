@@ -61,7 +61,7 @@ impl EventStream {
     /// Creates a new event stream with initial handlers.  You should
     /// pass the `Read` and `Write` parts separately, for example using
     /// `TcpStream::try_clone`.
-    pub fn new<R: Read + Send + 'static, W: Write + Send + 'static>(inner_reader: R, inner_writer: W, init_handlers: Vec<Handler>) -> io::Result<(EventStream, thread::JoinHandle)> {
+    pub fn new<R: Read + Send + 'static, W: Write + Send + 'static>(inner_reader: R, inner_writer: W, init_handlers: Vec<Handler>) -> io::Result<(EventStream, thread::JoinHandle<()>)> {
         let reader = channels::reader(inner_reader);
         let writer = channels::writer(inner_writer);
         let handlers = Arc::new(Mutex::new(init_handlers));
