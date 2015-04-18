@@ -1,13 +1,13 @@
 #![feature(box_syntax)]
 #![feature(plugin)]
-#![plugin(regex_macros)]
+#![plugin(postgres_macros,regex_macros)]
 
 use irc::event_stream::{Action, HandlerAction, Response};
 use irc::protocol;
+use postgres::{Connection, SslMode};
 use regex::Regex;
 use rand::{thread_rng, Rng};
 use std::ascii::AsciiExt;
-use std::collections::{hash_map, HashMap};
 use std::env;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
@@ -15,11 +15,22 @@ use std::sync::{Arc, Mutex};
 extern crate env_logger;
 extern crate getopts;
 extern crate irc;
+extern crate postgres;
 extern crate rand;
 extern crate regex;
 
 #[macro_use]
 extern crate log;
+
+fn init_pg_tables() -> Connection {
+    let pg = Connection::connect("postgres://leif@localhost", &SslMode::None).unwrap();
+    pg.execute("CREATE TABLE IF NOT EXISTS knowledge (
+                  key VARCHAR,
+                  val VARCHAR,
+                  PRIMARY KEY(key, val)
+                )", &[]).unwrap();
+    pg
+}
 
 fn main() {
     env_logger::init().unwrap();
@@ -43,8 +54,6 @@ fn main() {
     let nick = matches.opt_str("nick").expect("must provide --nick");
     let channels = matches.opt_strs("chan");
 
-    let knowledge_mutex: Arc<Mutex<HashMap<String, Vec<String>>>> = Arc::new(Mutex::new(HashMap::new()));
-
     let choice_nick = nick.clone();
     let choice_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(&choice_nick)) {
@@ -63,7 +72,16 @@ fn main() {
         Response::nothing()
     };
 
-    let knowledge_mutex_1 = knowledge_mutex.clone();
+    let pg = Arc::new(Mutex::new(init_pg_tables()));
+
+    // {
+    //     // TODO: Seed our knowledge
+    //     let mut knowledge = knowledge_mutex.lock().unwrap();
+    //     knowledge.insert(format!("{}: info", nick), vec!["I'm a robot running https://github.com/leifwalsh/irc, feel free to contribute!".to_string()]);
+    //     knowledge.insert(format!("{}, info", nick), vec!["I'm a robot running https://github.com/leifwalsh/irc, feel free to contribute!".to_string()]);
+    // }
+
+    let learning_pg = pg.clone();
     let learning_nick = nick.clone();
     let learning_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line).and_then(|pm| pm.targeted_msg(&learning_nick)) {
@@ -73,36 +91,23 @@ fn main() {
                 .filter(|s| !s.is_empty())
                 .collect();
             if assignment.len() == 2 {
-                let mut knowledge = knowledge_mutex_1.lock().unwrap();
-                match knowledge.entry(assignment[0].to_string()) {
-                    hash_map::Entry::Occupied(mut e) => {
-                        e.get_mut().push(assignment[1].to_string());
-                    },
-                    hash_map::Entry::Vacant(e) => {
-                        e.insert(vec![assignment[1].to_string()]);
-                    }
-                }
+                let conn = learning_pg.lock().unwrap();
+                conn.execute(sql!("INSERT INTO knowledge (key, val) VALUES ($1, $2)"),
+                             &[&assignment[0], &assignment[1]]).unwrap();
             }
         }
         Response::nothing()
     };
 
-    {
-        // Seed our knowledge
-        let mut knowledge = knowledge_mutex.lock().unwrap();
-        knowledge.insert(format!("{}: info", nick), vec!["I'm a robot running https://github.com/leifwalsh/irc, feel free to contribute!".to_string()]);
-        knowledge.insert(format!("{}, info", nick), vec!["I'm a robot running https://github.com/leifwalsh/irc, feel free to contribute!".to_string()]);
-    }
-
-    let knowledge_mutex_2 = knowledge_mutex.clone();
+    let info_pg = pg.clone();
     let info_nick = nick.clone();
     let info_handler = box move |line: &str| {
         if let Some(pm) = protocol::Privmsg::parse(line) {
             if let Some(reply_to) = pm.reply_target(&info_nick) {
-                let knowledge = knowledge_mutex_2.lock().unwrap();
-                if let Some(choices) = knowledge.get(pm.msg) {
-                    let mut rng = thread_rng();
-                    let choice = rng.choose(choices).unwrap();
+                let mut rng = thread_rng();
+                let conn = info_pg.lock().unwrap();
+                let info_stmt = conn.prepare(sql!("SELECT val FROM knowledge WHERE key = $1")).unwrap();
+                if let Some(choice) = rand::sample(&mut rng, info_stmt.query(&[&pm.msg]).unwrap().into_iter().map(|r| { r.get::<_, String>(0) }), 1).get(0) {
                     if let Some(c) = regex!(r"^<action>\s+(.*)$").captures(choice) {
                         return Response::respond(protocol::Privmsg::new(reply_to, &protocol::ctcp_action(c.at(1).expect("Bad regex match"))).format());
                     } else {
